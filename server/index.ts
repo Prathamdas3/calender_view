@@ -1,16 +1,26 @@
-import express, {type Response,type Request} from 'express'
+import express from 'express'
 import cors from 'cors'
 import bodyParser from 'body-parser'
+import { createEvent, deleteEvent, getEvent,getEvents, updateEvent } from './controllers'
 
-const app= express()
-const PORT=process.env.PORT||8000
+const app = express()
+const PORT = process.env.PORT || 8000
 
 app.use(cors())
 app.use(bodyParser.json())
 
 
-app.get('/api/events',(_:Request,res:Response)=>{
-    res.send("Hello")
-})
+app.get('/api/events',getEvents)
 
-app.listen(PORT,()=>console.log('http://localhost:'+PORT))
+// app.get('/api/events/:date',getEventsAccordingToDate)
+
+app.get('/api/event/:id',getEvent)
+
+app.post('/api/event',createEvent)
+
+app.patch('/api/evnet/:id',updateEvent)
+
+app.delete('/api/event/:id',deleteEvent)
+
+
+app.listen(PORT, () => console.log('http://localhost:' + PORT))
