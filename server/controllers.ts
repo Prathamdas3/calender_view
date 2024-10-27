@@ -2,21 +2,24 @@ import { type Request, type Response } from "express";
 import { PrismaClient } from '@prisma/client'
 import type { events } from '@prisma/client'
 
-type updateBody = {
-    title: string, userId: string, id: string, description?: string, date: Date
-}
+
 
 type postBody = {
-    title: string, userId: string, description?: string, date: Date,
+    title: string, description?: string, date: Date, startTime: string,
+    endTime: string
 
 }
 
 const prisma = new PrismaClient()
 
-export const getEvents = async (_: Request, res: Response) => {
+export const getEvents = async (req: Request, res: Response) => {
     try {
-        const data: events[] = await prisma.events.findMany()
-        console.log(data)
+        const userId = req.headers?.["x-user-id"]
+        const data: events[] = await prisma.events.findMany({
+            where: {
+                userId: userId as string
+            }
+        })
         res.json({ data }).status(200)
     } catch (error) {
         console.log(error)
@@ -27,14 +30,18 @@ export const getEvents = async (_: Request, res: Response) => {
 export const getEvent = async (req: Request, res: Response) => {
     try {
         const { id } = req.params
+        const userId = req.headers?.["x-user-id"]
 
-        if (id) {
+        if (!id) {
             res.status(400).json({ message: 'ID parameter required' })
         }
+        if (!userId) res.status(400).json({ message: 'UserId parameter required' })
+
 
         const data: events | null = await prisma.events.findUnique({
             where: {
-                id: id
+                id: id,
+                userId: userId as string
             }
         })
 
@@ -52,16 +59,22 @@ export const getEvent = async (req: Request, res: Response) => {
 
 export const createEvent = async (req: Request, res: Response) => {
     try {
-        const { title, description, date, userId } = req.body as postBody
-        if (!title || !description || !date || !userId) {
-            res.status(400).json({ message: "body is missing" })
-        }
+        const userId = req.headers?.["x-user-id"]
+        const { title, description, date, startTime, endTime } = req.body as postBody
+
+
+        if (!userId) res.status(400).json({ message: "userId is required" })
+
+        if (!title || !description || !date) res.status(400).json({ message: "body is missing" })
+
         const data = await prisma.events.create({
             data: {
                 title: title,
                 description: description,
                 date: date,
-                userId: userId
+                start_time: startTime,
+                end_time: endTime,
+                userId: userId as string
             }
         })
         res.status(201).json({
@@ -77,19 +90,22 @@ export const createEvent = async (req: Request, res: Response) => {
 export const updateEvent = async (req: Request, res: Response) => {
     try {
         const { id } = req.params
-        const { title, description, date, userId } = req.body as updateBody
+        const userId = req.headers?.["x-user-id"]
+        const { title, description, date, startTime, endTime } = req.body as postBody & { id: string }
         if (!id) {
             res.status(400).json({ message: 'Id is required' })
         }
         const data = await prisma.events.update({
             where: {
                 id: id,
-                userId: userId
+                userId: userId as string
             },
             data: {
                 title: title,
                 description: description,
-                date: date
+                date: date,
+                start_time: startTime,
+                end_time: endTime
             }
         })
 
@@ -103,7 +119,7 @@ export const updateEvent = async (req: Request, res: Response) => {
 export const deleteEvent = async (req: Request, res: Response) => {
     try {
         const { id } = req.params
-        const { userId } = req.body
+        const userId = req.headers?.["x-user-id"]
         if (!id) {
             res.status(400).json({ message: 'Event Id required' })
             return
@@ -115,7 +131,7 @@ export const deleteEvent = async (req: Request, res: Response) => {
         const data = await prisma.events.delete({
             where: {
                 id: id,
-                userId: userId
+                userId: userId as string
             }
         })
 
@@ -129,16 +145,3 @@ export const deleteEvent = async (req: Request, res: Response) => {
     }
 }
 
-// export const getEventsAccordingToDate=async(req:Request,res:Response)=>{
-//     try {
-//         const {date}=req.params
-//        const data=await prisma.events.findMany({
-//         where:{
-//             date:date
-//         }
-//        }) 
-//        res.status(200).json({data})
-//     } catch (error) {
-//         console.log('error while getting events according to events',error)
-//     }
-// }

@@ -12,13 +12,11 @@ app.use(bodyParser.json())
 
 app.get('/api/events',getEvents)
 
-// app.get('/api/events/:date',getEventsAccordingToDate)
-
 app.get('/api/event/:id',getEvent)
 
 app.post('/api/event',createEvent)
 
-app.patch('/api/evnet/:id',updateEvent)
+app.patch('/api/event/:id',updateEvent)
 
 app.delete('/api/event/:id',deleteEvent)
 
