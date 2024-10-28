@@ -29,7 +29,7 @@ import React from "react"
                   <div className="text-right pr-2">{format(setHours(new Date(), hour), 'h a')}</div>
                   {days.map(day => {
                     const hourEvents = data.filter((event:Event) => 
-                      isSameDay(parseISO(event.date), day) && 
+                      isSameDay(parseISO(event.date.toString()), day) && 
                       event.start_time && 
                       parseInt(event.start_time.split(':')[0]) === hour
                     )

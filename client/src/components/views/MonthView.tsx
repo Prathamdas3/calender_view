@@ -19,7 +19,7 @@ export default function MonthView({ date, userId, view,  }: { date: Date, userId
         <div key={day} className="text-center font-semibold py-2">{day}</div>
       ))}
       {days.map(day => {
-        const dayEvents = data.filter((event: Event) => isSameDay(parseISO(event.date), day))
+        const dayEvents = data.filter((event: Event) => isSameDay(parseISO(event.date.toString()), day))
         return (
           <div
             key={day.toString()}

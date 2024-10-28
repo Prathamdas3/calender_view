@@ -18,7 +18,7 @@ export default function DayView({ userId, date,view }: { userId: string, date: D
       }
 
       const filteredEvents = data.filter((event: Event) => {
-        const eventDate = parseISO(event.date);
+        const eventDate = parseISO(event.date.toString());
         return isSameDay(date, eventDate);
       });
     
