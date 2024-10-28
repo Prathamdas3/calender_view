@@ -15,11 +15,13 @@ function getDateDetails(date: Date) {
     return { year, month, day, week };
   }
 
+const BASE_URL=import.meta.env.VITE_BASE_URL
+
 export async function getEvents({userId,date,view}:{userId:string,date:Date,view:string}) {
     try {
         
         const {year,month,day,week}=getDateDetails(date)
-        const { data } = await axios.get(`http://localhost:8000/events?day=${day}&month=${month}&week=${week}&year=${year},`, {
+        const { data } = await axios.get(`${BASE_URL}/events?day=${day}&month=${month}&week=${week}&year=${year},`, {
             headers: {
                 "x-user-id": userId,
                 "x-view":view
@@ -35,7 +37,7 @@ export async function getEvents({userId,date,view}:{userId:string,date:Date,view
 
 export async function getEvent(id: string, userId: string) {
     try {
-        const { data } = await axios.get(`http://localhost:8000/event/${id}`, {
+        const { data } = await axios.get(`${BASE_URL}/event/${id}`, {
             headers: {
                 "x-user-id": userId
             }
@@ -48,7 +50,7 @@ export async function getEvent(id: string, userId: string) {
 
 export async function createEvent({ title, description, date, userId,startTime,endTime }: propType) {
     try {
-        const { data } = await axios.post('http://localhost:8000/event', {
+        const { data } = await axios.post(`${BASE_URL}/event`, {
             title, description, date,startTime,endTime
         }, {
             headers: {
@@ -63,7 +65,7 @@ export async function createEvent({ title, description, date, userId,startTime,e
 
 export async function updateEvent({ title, description, date, id, userId,startTime,endTime }: propType & { id: string }) {
     try {
-        const { data } = await axios.patch('http://localhost:8000/event/' + id, {
+        const { data } = await axios.patch(`${BASE_URL}/event/${id}`, {
             title, description, date,startTime,endTime
         }, {
             headers: {
@@ -78,7 +80,7 @@ export async function updateEvent({ title, description, date, id, userId,startTi
 
 export async function deleteEvent(id: string, userId: string) {
     try {
-        const { data } = await axios.delete(`http://localhost:8000/event/${id}`, {
+        const { data } = await axios.delete(`${BASE_URL}/event/${id}`, {
             headers: {
                 "x-user-id": userId
             }
