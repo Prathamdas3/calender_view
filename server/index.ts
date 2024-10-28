@@ -9,6 +9,9 @@ const PORT = process.env.PORT || 8000
 app.use(cors())
 app.use(bodyParser.json())
 
+app.get('/',(_req:Request,res:Response)=>{
+    res.json({"message":"wellcome"})
+})
 
 app.get('/events', async (req: Request, res: Response) => {
     await getEvents(req, res);
