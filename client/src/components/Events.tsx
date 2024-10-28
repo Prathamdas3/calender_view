@@ -3,10 +3,12 @@ import { format, addMonths, addWeeks, addDays, startOfWeek } from 'date-fns'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { SignedIn, SignedOut } from '@clerk/clerk-react'
 import DayView from './views/DayView'
 import MonthView from './views/MonthView'
 import WeekView from './views/WeekView'
+import { signOut } from 'firebase/auth'
+import { auth } from './provider/firebase'
+import { useNavigate } from 'react-router-dom'
 
 export type Event = {
   id: string;
@@ -25,7 +27,7 @@ export type Event = {
 export default function Events({ date, userId, setDate }: { date: Date, userId: string, setDate: Dispatch<SetStateAction<Date>> }) {
   const [view, setView] = useState<'month' | 'week' | 'day'>('day')
 
-
+  
   const changeDate = (amount: number) => {
     setDate(prevDate => {
       switch (view) {
@@ -37,6 +39,11 @@ export default function Events({ date, userId, setDate }: { date: Date, userId: 
           return addDays(prevDate, amount)
       }
     })
+  }
+  const router=useNavigate()
+  const handleLogOut=()=>{
+    signOut(auth)
+    router('/auth')
   }
 
 
@@ -67,19 +74,17 @@ export default function Events({ date, userId, setDate }: { date: Date, userId: 
               </SelectContent>
             </Select>
           </div>
-          <SignedIn>
-            <Button className="bg-red-500 dark:text-white dark:bg-red-700">
-              Log out
-            </Button>
-          </SignedIn>
-          <SignedOut>
-            <Button className="py-4">SignUp / Login</Button>
-          </SignedOut>
+
+          <Button className="bg-red-500 dark:text-white dark:bg-red-700" onClick={handleLogOut}>
+            Log out
+          </Button>
+
+
         </div>
       </div>
 
       {view === 'month' && <MonthView view={view} userId={userId} date={date} />}
-        {view === 'week' && <WeekView view={view} userId={userId} date={date} />}
+      {view === 'week' && <WeekView view={view} userId={userId} date={date} />}
       {view === 'day' && <DayView view={view} userId={userId} date={date} />}
     </div>
   )

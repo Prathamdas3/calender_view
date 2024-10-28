@@ -160,7 +160,11 @@ export default function Modal({ selectDate, setDate,userId }: propType) {
       <Calendar
         mode="single"
         selected={selectDate}
-        onSelect={(day)=>setDate(day as Date)}
+        onSelect={(day)=>{
+          if(day){
+            setDate(day)
+          }
+          }}
         className="rounded-md border flex justify-center"
       />
     </aside>
