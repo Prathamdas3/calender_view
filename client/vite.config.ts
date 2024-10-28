@@ -18,7 +18,8 @@ export default defineConfig({
       '/api': {
         target: 'https://clerk.calender-view.vercel.dev',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-      },
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
   }
 })
