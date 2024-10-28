@@ -23,7 +23,7 @@ export default function MonthView({ date, userId, view,  }: { date: Date, userId
         return (
           <div
             key={day.toString()}
-            className={`p-2 h-40 border ${isSameMonth(day, date) ? 'bg-black dark:text-white' : 'bg-gray-100 dark:bg-gray-900'}`}
+            className={`p-2 h-40 border ${isSameMonth(day, date) ? 'text-black dark:text-white' : 'bg-gray-100 dark:bg-gray-900'}`}
           >
             <div className="text-right">{format(day, 'd')}</div>
             {dayEvents.map((event: Event) => (
