@@ -1,15 +1,30 @@
 import axios from 'axios'
 
 type propType = { title: string, description: string|undefined, date: Date, userId: string,startTime:string,endTime:string }
+function getDateDetails(date: Date) {
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+  
+    
+    const startOfMonth = new Date(year, date.getMonth(), 1);
+    const dayOfWeek = startOfMonth.getDay();
+    const adjustedDate = date.getDate() + dayOfWeek; 
+    const week = Math.ceil(adjustedDate / 7);
+  
+    return { year, month, day, week };
+  }
 
-export async function getEvents(userId: string) {
+export async function getEvents({userId,date,view}:{userId:string,date:Date,view:string}) {
     try {
-        const { data } = await axios.get('http://localhost:8000/api/events', {
+        
+        const {year,month,day,week}=getDateDetails(date)
+        const { data } = await axios.get(`http://localhost:8000/events?day=${day}&month=${month}&week=${week}&year=${year},`, {
             headers: {
-                "x-user-id": userId
+                "x-user-id": userId,
+                "x-view":view
             }
         })
-        
         return data.data 
     } catch (error) {
         console.log('error while fetching events: ', error)
@@ -20,7 +35,7 @@ export async function getEvents(userId: string) {
 
 export async function getEvent(id: string, userId: string) {
     try {
-        const { data } = await axios.get(`http://localhost:8000/api/event/${id}`, {
+        const { data } = await axios.get(`http://localhost:8000/event/${id}`, {
             headers: {
                 "x-user-id": userId
             }
@@ -33,7 +48,7 @@ export async function getEvent(id: string, userId: string) {
 
 export async function createEvent({ title, description, date, userId,startTime,endTime }: propType) {
     try {
-        const { data } = await axios.post('http://localhost:8000/api/event', {
+        const { data } = await axios.post('http://localhost:8000/event', {
             title, description, date,startTime,endTime
         }, {
             headers: {
@@ -48,7 +63,7 @@ export async function createEvent({ title, description, date, userId,startTime,e
 
 export async function updateEvent({ title, description, date, id, userId,startTime,endTime }: propType & { id: string }) {
     try {
-        const { data } = await axios.patch('http://localhost:8000/api/event/' + id, {
+        const { data } = await axios.patch('http://localhost:8000/event/' + id, {
             title, description, date,startTime,endTime
         }, {
             headers: {
@@ -63,7 +78,7 @@ export async function updateEvent({ title, description, date, id, userId,startTi
 
 export async function deleteEvent(id: string, userId: string) {
     try {
-        const { data } = await axios.delete(`http://localhost:8000/api/event/${id}`, {
+        const { data } = await axios.delete(`http://localhost:8000/event/${id}`, {
             headers: {
                 "x-user-id": userId
             }

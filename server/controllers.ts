@@ -1,26 +1,91 @@
 import { type Request, type Response } from "express";
 import { PrismaClient } from '@prisma/client'
 import type { events } from '@prisma/client'
-
-
+const prisma = new PrismaClient()
 
 type postBody = {
     title: string, description?: string, date: Date, startTime: string,
     endTime: string
-
 }
 
-const prisma = new PrismaClient()
+
+const getDailyDateRange = (year: number, month: number, day: number) => {
+    const startDate = new Date(year, month - 1, day);
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 1);
+    return { startDate, endDate };
+};
+
+
+const getWeeklyDateRange = (year: number, month: number, week: number) => {
+    const startOfMonth = new Date(year, month - 1, 1);
+    const startDate = new Date(startOfMonth.setDate((week - 1) * 7 + 1));
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + 7);
+    return { startDate, endDate };
+};
+
+
+const getMonthlyDateRange = (year: number, month: number) => {
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 1);
+    return { startDate, endDate };
+};
+
+
 
 export const getEvents = async (req: Request, res: Response) => {
     try {
         const userId = req.headers?.["x-user-id"]
-        const data: events[] = await prisma.events.findMany({
-            where: {
-                userId: userId as string
-            }
-        })
-        res.json({ data }).status(200)
+        const view=req.headers?.["x-view"]
+        const { year, month, day, week } = req.query
+        
+        let data:events[]=[]
+        if (!year || !month || !day || !week) res.status(400).json({ error: "Year, month, day,and week are required" });
+
+        if (view=="month") {
+            const { startDate, endDate } = getMonthlyDateRange(parseInt(year as string), parseInt(month as string));
+
+            data = await prisma.events.findMany({
+                where: {
+                    userId: userId as string,
+                    date: {
+                        gte: startDate,
+                        lt: endDate
+                    }
+                }
+            })
+            
+        } else if (view==="week") {
+            const { startDate, endDate } = getWeeklyDateRange(parseInt(year as string), parseInt(month as string), parseInt(week as string));
+             data= await prisma.events.findMany({
+                where: {
+                    userId: userId as string,
+                    date: {
+                        gte: startDate,
+                        lt: endDate
+                    }
+                }
+            })
+            
+        }else if(view==="day"){
+            const { startDate, endDate } = getDailyDateRange(parseInt(year as string), parseInt(month as string), parseInt(day as string));
+            data= await prisma.events.findMany({
+                where: {
+                    userId: userId as string,
+                    date: {
+                        gte: startDate,
+                        lt: endDate
+                    }
+                }
+            })
+            
+        }else {
+            return res.status(400).json({ error: "Invalid date range parameters." });
+          }
+          
+
+          res.status(200).json({ data });
     } catch (error) {
         console.log(error)
         res.json({ message: 'error fetching events' }).status(500)

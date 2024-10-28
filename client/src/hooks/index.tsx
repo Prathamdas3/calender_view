@@ -1,9 +1,10 @@
 import { createEvent, getEvent, getEvents, updateEvent, deleteEvent, } from '@/lib/api'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
-export const useEvents = (userId:string) => {
-   
-    const { data, isLoading, error } = useQuery({ queryKey: ['getEvents'], queryFn: async () => await getEvents(userId ) })
+
+export const useEvents = ({userId,date,view}:{userId:string,date:Date,view:string}) => {
+    
+    const { data, isLoading, error } = useQuery({ queryKey: ['getEvents',date], queryFn: async () => await getEvents({userId:userId,date,view}) })
     return {
         data, isLoading, error
     }

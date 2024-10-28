@@ -1,10 +1,12 @@
-import { useEvents } from "@/hooks";
-import { Button } from "./ui/button";
+import { Dispatch, SetStateAction, useState } from 'react'
+import { format, addMonths, addWeeks, addDays, startOfWeek } from 'date-fns'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ScrollArea } from "./ui/scroll-area";
-import { useState } from "react";
-import { SignedIn, SignedOut } from "@clerk/clerk-react";
-import EventCard from "./EventCard";
+import { SignedIn, SignedOut } from '@clerk/clerk-react'
+import DayView from './views/DayView'
+import MonthView from './views/MonthView'
+import WeekView from './views/WeekView'
 
 export type Event = {
   id: string;
@@ -14,35 +16,57 @@ export type Event = {
   userId: string;
   createdAt: Date;
   updatedAt: Date;
-  start_time:string,
-  end_time:string
+  start_time: string,
+  end_time: string
 };
 
-export default function EventsSection({ date, userId }: { date: Date | undefined, userId: string }) {
-  const [view, setView] = useState<'day' | 'week' | 'month'>('day')
-  const { data, error } = useEvents(userId)
 
 
-  if (error) {
-    console.log(error.message)
+export default function Events({ date, userId, setDate }: { date: Date, userId: string, setDate: Dispatch<SetStateAction<Date>> }) {
+  const [view, setView] = useState<'month' | 'week' | 'day'>('day')
+
+
+  const changeDate = (amount: number) => {
+    setDate(prevDate => {
+      switch (view) {
+        case 'month':
+          return addMonths(prevDate, amount)
+        case 'week':
+          return addWeeks(prevDate, amount)
+        case 'day':
+          return addDays(prevDate, amount)
+      }
+    })
   }
 
-  return (
-    <main className="flex-1 p-6 min-h-screen">
-      <div className="flex justify-between items-center flex-col md:flex-row">
-        <h2 className="md:text-2xl text-xl font-bold mb-6 ">Events for {(new Date()).toDateString()}</h2>
-        <div className="flex items-center gap-4 mb-2">
-          <Select value={view} onValueChange={(value: 'day' | 'week' | 'month') => setView(value)}>
-            <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder="Select view" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="day">Day</SelectItem>
-              <SelectItem value="week">Week</SelectItem>
-              <SelectItem value="month">Month</SelectItem>
-            </SelectContent>
-          </Select>
 
+  return (
+    <div className="container mx-auto ">
+      <div className="flex justify-between items-center mb-4 ">
+        <h2 className="text-2xl font-bold">
+          {view === 'month' && format(date, 'MMMM yyyy')}
+          {view === 'week' && `Week of ${format(startOfWeek(date), 'MMM d, yyyy')}`}
+          {view === 'day' && `Events for ${format(date, 'MMMM d, yyyy')}`}
+        </h2>
+        <div className="flex items-center gap-4 mb-2 mt-4">
+          <div className="flex items-center space-x-4">
+            <Button variant="outline" size="icon" onClick={() => changeDate(-1)}>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="icon" onClick={() => changeDate(1)}>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <Select value={view} onValueChange={(value: 'month' | 'week' | 'day') => setView(value)}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select view" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="month">Month</SelectItem>
+                {/* <SelectItem value="week">Week</SelectItem> */}
+                <SelectItem value="day">Day</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <SignedIn>
             <Button className="bg-red-500 dark:text-white dark:bg-red-700">
               Log out
@@ -52,26 +76,12 @@ export default function EventsSection({ date, userId }: { date: Date | undefined
             <Button className="py-4">SignUp / Login</Button>
           </SignedOut>
         </div>
-
       </div>
-      <div className=" border border-gray-400 dark:border-gray-600 rounded-lg bg-gray-200 dark:bg-gray-800 min-h-[95%] w-full ">
-        <ScrollArea className="flex flex-col justify-start w-full p-4 ">
-          {Array.isArray(data) && data.length > 0 ? (
-            data
-              .filter((event: Event) =>
-                typeof event.date === 'string'
-                  ? new Date(event.date).toDateString() === date?.toDateString()
-                  : event.date.toDateString() === date?.toDateString()
-              )
-              .map((event: Event) => (
-                <EventCard key={event.id} data={event} userId={userId} />
-              ))
-          ) : (
-            <div className="flex flex-col justify-center items-center w-full min-h-[80vh] text-2xl font-semibold"><p>No events found.</p></div>
 
-          )}
-        </ScrollArea>
-      </div>
-    </main>
-  );
+      {view === 'month' && <MonthView view={view} userId={userId} date={date} />}
+        {view === 'week' && <WeekView view={view} userId={userId} date={date} />}
+      {view === 'day' && <DayView view={view} userId={userId} date={date} />}
+    </div>
+  )
 }
+

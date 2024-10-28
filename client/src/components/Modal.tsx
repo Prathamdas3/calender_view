@@ -27,9 +27,9 @@ const EventForm = z.object({
 type EventFormType = z.infer<typeof EventForm>
 
 type propType = {
-  selectDate: Date | undefined,
+  selectDate: Date ,
   userId:string
-  setDate: React.Dispatch<React.SetStateAction<Date | undefined>>
+  setDate: React.Dispatch<React.SetStateAction<Date>>
 }
 
 
@@ -160,7 +160,7 @@ export default function Modal({ selectDate, setDate,userId }: propType) {
       <Calendar
         mode="single"
         selected={selectDate}
-        onSelect={setDate}
+        onSelect={(day)=>setDate(day as Date)}
         className="rounded-md border flex justify-center"
       />
     </aside>
