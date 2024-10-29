@@ -49,13 +49,13 @@ export default function Events({ date, userId, setDate }: { date: Date, userId: 
 
   return (
     <div className="container mx-auto ">
-      <div className="flex justify-between items-center mb-4 ">
+      <div className="flex justify-between items-center mb-4 flex-col lg:flex-row">
         <h2 className="text-2xl font-bold">
           {view === 'month' && format(date, 'MMMM yyyy')}
           {view === 'week' && `Week of ${format(startOfWeek(date), 'MMM d, yyyy')}`}
           {view === 'day' && `Events for ${format(date, 'MMMM d, yyyy')}`}
         </h2>
-        <div className="flex items-center gap-4 mb-2 mt-4">
+        <div className="flex items-center gap-4 mb-2 mt-4 flex-col md:flex-row">
           <div className="flex items-center space-x-4">
             <Button variant="outline" size="icon" onClick={() => changeDate(-1)}>
               <ChevronLeft className="h-4 w-4" />

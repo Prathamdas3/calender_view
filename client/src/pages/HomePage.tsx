@@ -25,7 +25,7 @@ export default function HomePage() {
       }, [router]);
       
     return (
-        <div className="md:flex min-h-screen bg-gray-100  dark:bg-gray-900">
+        <div className="md:flex min-h-screen bg-gray-100 gap-2  dark:bg-gray-900">
             <Modal selectDate={date} setDate={setDate} userId={userId as string}/>
             <Events date={date} userId={userId as string} setDate={setDate}/>
         </div>
