@@ -68,7 +68,7 @@ export default function Events({ date, userId, setDate }: { date: Date, userId: 
                 <SelectValue placeholder="Select view" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="month">Month</SelectItem>
+                {/* <SelectItem value="month">Month</SelectItem> */}
                 {/* <SelectItem value="week">Week</SelectItem> */}
                 <SelectItem value="day">Day</SelectItem>
               </SelectContent>

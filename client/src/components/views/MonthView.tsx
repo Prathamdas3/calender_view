@@ -12,6 +12,7 @@ export default function MonthView({ date, userId, view,  }: { date: Date, userId
   //   setDate(date)
   //   setView('day')
   // }
+  console.log(data)
 
   return (
     <div className="grid grid-cols-7 gap-1 text-black dark:text-white">
